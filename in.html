@@ -21,42 +21,36 @@
   </head>
   <body>
     <script>
-      function startAccelerometerReading(callback) {
-        if (window.DeviceOrientationEvent) {
-          // Device orientation events are supported
-          window.addEventListener("deviceorientation", function (event) {
-            // Extract accelerometer data from the event object
-            var alpha = event.alpha; // Rotation around the z-axis (in degrees)
-            var beta = event.beta; // Rotation around the x-axis (in degrees)
-            var gamma = event.gamma; // Rotation around the y-axis (in degrees)
+var lastAlpha = null;
+var updateInterval = 1000; // Update interval in milliseconds
 
-            // Call the provided callback function with the accelerometer data
-            callback({ alpha: alpha, beta: beta, gamma: gamma });
-          });
-        } else {
-          // Device orientation events are not supported
-          console.error(
-            "Device orientation events are not supported in this browser."
-          );
-        }
-      }
+function handleOrientation(event) {
+    var alpha = event.alpha;
+    if (alpha === null) return;
 
-      window.addEventListener("deviceorientation", handleOrientation);
+    alpha = alpha % 360;
 
-      function handleOrientation(event) {
-        // Get the device's alpha (rotation around the z-axis) value
-        var alpha = event.alpha;
-        if (alpha === null) return; // If alpha value is null, return
-
-        // Normalize alpha value to be between 0 and 360
-        alpha = alpha % 360;
-
+    // Check if alpha value has changed significantly or if it's the first update
+    if (Math.abs(alpha - lastAlpha) > 5 || lastAlpha === null) {
         // Map the alpha value to a percentage for the gradient
         var gradientPercentage = (alpha / 360) * 100;
-
-        // Update the background gradient
         document.body.style.background = `linear-gradient(${alpha}deg, #000000 0%, #1f222e ${gradientPercentage}%)`;
-      }
+        
+        // Update lastAlpha
+        lastAlpha = alpha;
+    }
+}
+
+// Update the background gradient at regular intervals
+setInterval(function() {
+    // Get the current alpha value
+    var alpha = lastAlpha;
+
+    // Map the alpha value to a percentage for the gradient
+    var gradientPercentage = (alpha / 360) * 100;
+    document.body.style.background = `linear-gradient(${alpha}deg, #000000 0%, #1f222e ${gradientPercentage}%)`;
+}, updateInterval);
+
     </script>
   </body>
 </html>

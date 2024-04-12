@@ -3,117 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <style>
-    body {
-      padding: 0;
-      margin: 0;
-      background: #efebe4;
-    }
-
-    .line {
-      position: absolute;
-      width: 5px;
-      height: 3px;
-      margin: auto;
-      left: 0px;
-      right: 0px;
-      top: 0px;
-      bottom: 0px;
-      background: black;
-      -webkit-transform-origin: 0% 0%; /* Chrome, Safari, Opera */
-      transform-origin: 0% 0%;
-      z-index: 100;
-    }
-
-    #y {
-      width: 3px;
-      height: 5px;
-    }
-
-    #angle {
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      border: 1px solid black;
-      margin: auto;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      border-radius: 50%;
-      -webkit-transform-origin: 50% 50%; /* Chrome, Safari, Opera */
-      transform-origin: 50% 50%;
-      z-index: 100;
-      /*  transition: all 0.3s;*/
-    }
-
-    #angle:before {
-      content: "";
-      position: relative;
-      left: 100px;
-      width: 20px;
-      height: 30px;
-      border: 1px solid black;
-    }
-
-    #angle:after {
-      content: "";
-      position: absolute;
-      background: black;
-      left: 96px;
-      top: 96px;
-      border-radius: 50%;
-      width: 6px;
-      height: 6px;
-      border: 1px solid black;
-    }
-    #guideX {
-      position: absolute;
-      top: 0px;
-      left: -1px;
-      width: 50%;
-      height: 100%;
-      border-right: 1px solid red;
-    }
-
-    #guideY {
-      position: absolute;
-      width: 100%;
-      height: 50%;
-      top: -1px;
-      border-bottom: 1px solid green;
-    }
-  </style>
-  <body>
-    <body onload="init()">
-      <div id="x" class="line"></div>
-      <div id="y" class="line"></div>
-      <div id="angle"></div>
-      <div id="guideX"></div>
-      <div id="guideY"></div>
-    </body>
-  </body>
-  <script>
-    function init() {
-      if (window.DeviceOrientationEvent) {
-        window.addEventListener(
-          "deviceorientation",
-          function (event) {
-            document.getElementById("y").style.webkitTransform =
-              "scaleY(" + Math.round(event.beta) + ")";
-            document.getElementById("x").style.webkitTransform =
-              "scaleX(" + Math.round(event.gamma) + ")";
-            document.getElementById("angle").style.webkitTransform =
-              "rotateZ(" + Math.round(event.alpha) + "deg)";
-          },
-          true
-        );
-      } else {
-        alert("Sorry, your browser doesn't support Device Orientation");
+    <title>Accelerometer Background</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(45deg, #000000 0%, #a3abc9 100%);
+        transition: background-color 0.5s ease;
       }
-    }
-  </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </style>
+  </head>
+  <body>
+    <script>
+      function startAccelerometerReading(callback) {
+        if (window.DeviceOrientationEvent) {
+          // Device orientation events are supported
+          window.addEventListener("deviceorientation", function (event) {
+            // Extract accelerometer data from the event object
+            var alpha = event.alpha; // Rotation around the z-axis (in degrees)
+            var beta = event.beta; // Rotation around the x-axis (in degrees)
+            var gamma = event.gamma; // Rotation around the y-axis (in degrees)
+
+            // Call the provided callback function with the accelerometer data
+            callback({ alpha: alpha, beta: beta, gamma: gamma });
+          });
+        } else {
+          // Device orientation events are not supported
+          console.error(
+            "Device orientation events are not supported in this browser."
+          );
+        }
+      }
+
+      window.addEventListener("deviceorientation", handleOrientation);
+
+      function handleOrientation(event) {
+        // Get the device's alpha (rotation around the z-axis) value
+        var alpha = event.alpha;
+        if (alpha === null) return; // If alpha value is null, return
+
+        // Normalize alpha value to be between 0 and 360
+        alpha = alpha % 360;
+
+        // Map the alpha value to a percentage for the gradient
+        var gradientPercentage = (alpha / 360) * 100;
+
+        // Update the background gradient
+        document.body.style.background = `linear-gradient(${alpha}deg, #000000 0%, #1f222e ${gradientPercentage}%)`;
+      }
+    </script>
+  </body>
 </html>
+
